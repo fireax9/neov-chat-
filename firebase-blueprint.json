@@ -1,0 +1,407 @@
+{
+  "entities": {
+    "UserPrivate": {
+      "title": "UserPrivate",
+      "description": "Private user account profile containing Gmail address PII, rank, P E Y points, and customizations.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "User Gmail address" },
+        "displayName": { "type": "string", "description": "Display name" },
+        "friendCode": { "type": "string", "description": "Shareable neov chat friend code" },
+        "status": { "type": "string", "enum": ["online", "idle", "dnd", "offline"], "description": "Presence status" },
+        "photoUrl": { "type": "string", "description": "Profile avatar URL or encoded image" },
+        "bannerUrl": { "type": "string", "description": "Profile banner background image" },
+        "customStatus": { "type": "string", "description": "Optional custom status text" },
+        "peyPoints": { "type": "integer", "description": "P E Y points balance" },
+        "ownedFrames": { "type": "array", "description": "Unlocked profile frame IDs" },
+        "equippedFrame": { "type": "string", "description": "Currently equipped profile frame ID" },
+        "ownedProfileEffects": { "type": "array", "description": "Unlocked video profile effect IDs" },
+        "equippedProfileEffect": { "type": "string", "description": "Currently active video profile effect ID" },
+        "profileVideoData": { "type": "string", "description": "Compressed profile video banner data URI" },
+        "avatarVideoData": { "type": "string", "description": "Compressed Neo Plus animated avatar video data URI" },
+        "rank": { "type": "string", "enum": ["normal", "ultra", "neo_plus"], "description": "User membership tier" },
+        "rankExpiresAtMs": { "type": "integer", "description": "Membership expiration epoch milliseconds" },
+        "ultraTrialUsed": { "type": "boolean", "description": "Whether 3-day Ultra free trial was used" },
+        "neoPlusTrialUsed": { "type": "boolean", "description": "Whether 1-day Neo Plus free trial was used" },
+        "profileThemeColorHex": { "type": "string", "description": "Ultra/Neo Plus full profile color hex" },
+        "rewardedFriendUids": { "type": "array", "description": "Friend UIDs already rewarded with +200 P E Y" },
+        "dailyClaimsCount": { "type": "integer", "description": "Number of daily P E Y rewards claimed" },
+        "lastDailyClaimAtMs": { "type": "integer", "description": "Epoch milliseconds of last daily P E Y claim" },
+        "channelRewardClaimed": { "type": "boolean", "description": "Whether the one-time +200 P E Y fire ax9 channel bonus was claimed" },
+        "claimedCustomQuests": { "type": "array", "description": "Custom quest IDs claimed by the user" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "email", "displayName", "friendCode", "status", "createdAt"]
+    },
+    "PublicProfile": {
+      "title": "PublicProfile",
+      "description": "Non-PII public user card visible to authenticated peers and Ultra directory.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "friendCode": { "type": "string" },
+        "status": { "type": "string", "enum": ["online", "idle", "dnd", "offline"] },
+        "photoUrl": { "type": "string" },
+        "bannerUrl": { "type": "string" },
+        "customStatus": { "type": "string" },
+        "equippedFrame": { "type": "string" },
+        "equippedProfileEffect": { "type": "string" },
+        "profileVideoData": { "type": "string" },
+        "avatarVideoData": { "type": "string" },
+        "rank": { "type": "string", "enum": ["normal", "ultra", "neo_plus"] },
+        "rankExpiresAtMs": { "type": "integer" },
+        "profileThemeColorHex": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "friendCode", "status", "createdAt"]
+    },
+    "LookupKey": {
+      "title": "LookupKey",
+      "description": "Privacy-preserving friend lookup document keyed by SHA-256 email hash or friend code.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "displayName": { "type": "string" },
+        "friendCode": { "type": "string" },
+        "photoUrl": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "displayName", "friendCode", "createdAt"]
+    },
+    "Friendship": {
+      "title": "Friendship",
+      "description": "Friend request and accepted friendship state between two users.",
+      "type": "object",
+      "properties": {
+        "participantIds": { "type": "array" },
+        "requesterId": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "requesterName": { "type": "string" },
+        "recipientName": { "type": "string" },
+        "requesterCode": { "type": "string" },
+        "recipientCode": { "type": "string" },
+        "requesterPhoto": { "type": "string" },
+        "recipientPhoto": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "accepted"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": [
+        "participantIds", "requesterId", "recipientId",
+        "requesterName", "recipientName", "requesterCode", "recipientCode",
+        "status", "createdAt"
+      ]
+    },
+    "Conversation": {
+      "title": "Conversation",
+      "description": "Direct Message thread between two friends.",
+      "type": "object",
+      "properties": {
+        "participantIds": { "type": "array" },
+        "participantAId": { "type": "string" },
+        "participantAName": { "type": "string" },
+        "participantAPhoto": { "type": "string" },
+        "participantBId": { "type": "string" },
+        "participantBName": { "type": "string" },
+        "participantBPhoto": { "type": "string" },
+        "lastMessageText": { "type": "string" },
+        "lastMessageSenderId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["participantIds", "participantAId", "participantAName", "participantBId", "participantBName", "createdAt"]
+    },
+    "DirectMessage": {
+      "title": "DirectMessage",
+      "description": "Rich message (text, 4K/standard image, voice audio, sticker, GIF) with Delete-for-Me & Delete-for-Everyone.",
+      "type": "object",
+      "properties": {
+        "conversationId": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderPhoto": { "type": "string" },
+        "senderRank": { "type": "string", "enum": ["normal", "ultra", "neo_plus"] },
+        "text": { "type": "string" },
+        "messageType": { "type": "string", "enum": ["text", "image", "audio", "sticker", "gif", "deleted"] },
+        "mediaData": { "type": "string" },
+        "mediaDurationMs": { "type": "integer" },
+        "replyToText": { "type": "string" },
+        "edited": { "type": "boolean" },
+        "hiddenFor": { "type": "array" },
+        "deletedForEveryone": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["conversationId", "participantIds", "senderId", "senderName", "text", "createdAt"]
+    },
+    "Server": {
+      "title": "Server",
+      "description": "Discord-style friend server/guild with channels.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "iconEmoji": { "type": "string" },
+        "iconUrl": { "type": "string" },
+        "accentHex": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "inviteCode": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "channels": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "iconEmoji", "accentHex", "ownerId", "inviteCode", "memberUids", "channels", "createdAt"]
+    },
+    "ServerInvite": {
+      "title": "ServerInvite",
+      "description": "Invite code or server name lookup record mapping to a server.",
+      "type": "object",
+      "properties": {
+        "inviteCode": { "type": "string" },
+        "serverId": { "type": "string" },
+        "serverName": { "type": "string" },
+        "iconEmoji": { "type": "string" },
+        "iconUrl": { "type": "string" },
+        "ownerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["inviteCode", "serverId", "serverName", "iconEmoji", "ownerId", "createdAt"]
+    },
+    "ServerMessage": {
+      "title": "ServerMessage",
+      "description": "Rich message inside a server text channel.",
+      "type": "object",
+      "properties": {
+        "serverId": { "type": "string" },
+        "channelName": { "type": "string" },
+        "memberUids": { "type": "array" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderPhoto": { "type": "string" },
+        "senderRank": { "type": "string", "enum": ["normal", "ultra", "neo_plus"] },
+        "text": { "type": "string" },
+        "messageType": { "type": "string", "enum": ["text", "image", "audio", "sticker", "gif", "deleted"] },
+        "mediaData": { "type": "string" },
+        "mediaDurationMs": { "type": "integer" },
+        "replyToText": { "type": "string" },
+        "edited": { "type": "boolean" },
+        "hiddenFor": { "type": "array" },
+        "deletedForEveryone": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["serverId", "channelName", "memberUids", "senderId", "senderName", "text", "createdAt"]
+    },
+    "CallSession": {
+      "title": "CallSession",
+      "description": "Voice or video call signaling and multi-participant state.",
+      "type": "object",
+      "properties": {
+        "callerId": { "type": "string" },
+        "callerName": { "type": "string" },
+        "callerPhoto": { "type": "string" },
+        "calleeId": { "type": "string" },
+        "calleeName": { "type": "string" },
+        "calleePhoto": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "targetType": { "type": "string", "enum": ["dm", "server"] },
+        "targetId": { "type": "string" },
+        "channelName": { "type": "string" },
+        "callType": { "type": "string", "enum": ["voice", "video"] },
+        "status": { "type": "string", "enum": ["ringing", "active", "ended", "declined"] },
+        "videoQuality": { "type": "string", "enum": ["144p", "240p", "360p", "480p", "720p", "1080p", "4K", "8K"] },
+        "callerMuted": { "type": "boolean" },
+        "calleeMuted": { "type": "boolean" },
+        "callerVideoOn": { "type": "boolean" },
+        "calleeVideoOn": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["callerId", "callerName", "calleeName", "participantIds", "targetType", "targetId", "callType", "status", "createdAt"]
+    },
+    "CallStreamFrame": {
+      "title": "CallStreamFrame",
+      "description": "Live call participant metadata, voice effect, face filter, and requested quality.",
+      "type": "object",
+      "properties": {
+        "callId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "frameData": { "type": "string" },
+        "audioData": { "type": "string" },
+        "audioSeq": { "type": "integer" },
+        "voiceEffect": { "type": "string" },
+        "faceFilter": { "type": "string" },
+        "videoQuality": { "type": "string" },
+        "audioLevel": { "type": "number" },
+        "videoEnabled": { "type": "boolean" },
+        "muted": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["callId", "senderId", "senderName", "participantIds", "audioLevel", "videoEnabled", "muted", "updatedAt"]
+    },
+    "CallSignal": {
+      "title": "CallSignal",
+      "description": "Low-latency WebRTC P2P offer/answer/ICE signaling message.",
+      "type": "object",
+      "properties": {
+        "callId": { "type": "string" },
+        "senderId": { "type": "string" },
+        "recipientId": { "type": "string" },
+        "participantIds": { "type": "array" },
+        "type": { "type": "string", "enum": ["offer", "answer", "ice"] },
+        "sdp": { "type": "string" },
+        "candidate": { "type": "string" },
+        "sdpMid": { "type": "string" },
+        "sdpMLineIndex": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["callId", "senderId", "recipientId", "participantIds", "type", "createdAt"]
+    },
+    "ServerEvent": {
+      "title": "ServerEvent",
+      "description": "Scheduled Discord-style server event managed by server owner or Neo Plus members.",
+      "type": "object",
+      "properties": {
+        "serverId": { "type": "string" },
+        "creatorId": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "scheduledLabel": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["serverId", "creatorId", "creatorName", "title", "scheduledLabel", "createdAt"]
+    },
+    "CustomSticker": {
+      "title": "CustomSticker",
+      "description": "User-created custom sticker (photo or styled emoji) for personal or server chat trays.",
+      "type": "object",
+      "properties": {
+        "creatorId": { "type": "string" },
+        "scopeId": { "type": "string" },
+        "title": { "type": "string" },
+        "emoji": { "type": "string" },
+        "accentHex": { "type": "string" },
+        "imageData": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["creatorId", "title", "emoji", "accentHex", "createdAt"]
+    },
+    "CustomQuest": {
+      "title": "CustomQuest",
+      "description": "Community P E Y reward quest authored by Neo Plus members.",
+      "type": "object",
+      "properties": {
+        "creatorId": { "type": "string" },
+        "creatorName": { "type": "string" },
+        "creatorRank": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "questType": { "type": "string", "enum": ["add_friends", "daily_check"] },
+        "targetCount": { "type": "integer" },
+        "rewardPerStep": { "type": "integer" },
+        "totalReward": { "type": "integer" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["creatorId", "creatorName", "creatorRank", "title", "questType", "targetCount", "rewardPerStep", "totalReward", "createdAt"]
+    },
+    "DeveloperTicket": {
+      "title": "DeveloperTicket",
+      "description": "Direct developer contact message from Neo Plus members.",
+      "type": "object",
+      "properties": {
+        "senderId": { "type": "string" },
+        "senderName": { "type": "string" },
+        "senderRank": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["senderId", "senderName", "senderRank", "subject", "message", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserPrivate" },
+      "description": "Owner-only user profile containing Gmail address PII."
+    },
+    "/users/{userId}/custom_stickers/{stickerId}": {
+      "schema": { "$ref": "#/entities/CustomSticker" },
+      "description": "Personal custom stickers created by the user."
+    },
+    "/public_profiles/{userId}": {
+      "schema": { "$ref": "#/entities/PublicProfile" },
+      "description": "Public non-PII user display profile."
+    },
+    "/lookup_keys/{keyId}": {
+      "schema": { "$ref": "#/entities/LookupKey" },
+      "description": "Privacy-safe friend lookup keys."
+    },
+    "/friendships/{friendshipId}": {
+      "schema": { "$ref": "#/entities/Friendship" },
+      "description": "Friendships and friend requests."
+    },
+    "/conversations/{conversationId}": {
+      "schema": { "$ref": "#/entities/Conversation" },
+      "description": "Direct Message conversations."
+    },
+    "/conversations/{conversationId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/DirectMessage" },
+      "description": "Real-time direct messages within a conversation."
+    },
+    "/servers/{serverId}": {
+      "schema": { "$ref": "#/entities/Server" },
+      "description": "Discord-style friend servers."
+    },
+    "/servers/{serverId}/events/{eventId}": {
+      "schema": { "$ref": "#/entities/ServerEvent" },
+      "description": "Scheduled server events."
+    },
+    "/servers/{serverId}/custom_stickers/{stickerId}": {
+      "schema": { "$ref": "#/entities/CustomSticker" },
+      "description": "Shared server custom stickers added by owner or Neo Plus members."
+    },
+    "/server_invites/{inviteCode}": {
+      "schema": { "$ref": "#/entities/ServerInvite" },
+      "description": "Server invite codes."
+    },
+    "/servers/{serverId}/messages/{messageId}": {
+      "schema": { "$ref": "#/entities/ServerMessage" },
+      "description": "Real-time messages within a server channel."
+    },
+    "/calls/{callId}": {
+      "schema": { "$ref": "#/entities/CallSession" },
+      "description": "Real-time voice and video calls."
+    },
+    "/calls/{callId}/streams/{senderId}": {
+      "schema": { "$ref": "#/entities/CallStreamFrame" },
+      "description": "Live participant call stream metadata."
+    },
+    "/calls/{callId}/signals/{signalId}": {
+      "schema": { "$ref": "#/entities/CallSignal" },
+      "description": "WebRTC P2P SDP offer/answer and ICE signaling."
+    },
+    "/custom_quests/{questId}": {
+      "schema": { "$ref": "#/entities/CustomQuest" },
+      "description": "Custom P E Y quests created by Neo Plus members."
+    },
+    "/dev_messages/{ticketId}": {
+      "schema": { "$ref": "#/entities/DeveloperTicket" },
+      "description": "Direct developer contact tickets from Neo Plus members."
+    }
+  }
+}

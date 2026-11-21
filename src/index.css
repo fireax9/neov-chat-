@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@font-face {
+  font-family: "Plus Jakarta Sans";
+  src: url("/assets/neov/fonts/plus_jakarta_sans.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/assets/neov/fonts/space_grotesk.ttf") format("truetype");
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+:root {
+  --cordly-rail-bg: #eef2f7;
+  --cordly-surface-dark: #f8fafc;
+  --cordly-canvas-bg: #ffffff;
+  --cordly-card-surface: #f1f5f9;
+  --cordly-elevated-surface: #e2e8f0;
+  --cordly-divider: #cbd5e1;
+  --cordly-text-primary: #0f172a;
+  --cordly-text-secondary: #475569;
+  --cordly-text-muted: #64748b;
+
+  --cordly-accent: #5865f2;
+  --cordly-accent-secondary: #0c05ab;
+  --cordly-emerald: #10b981;
+  --cordly-amber: #f59e0b;
+  --cordly-crimson: #ef4444;
+  --cordly-cyan: #0ea5e9;
+}
+
+.dark {
+  --cordly-rail-bg: #000000;
+  --cordly-surface-dark: #060608;
+  --cordly-canvas-bg: #000000;
+  --cordly-card-surface: #0e0e13;
+  --cordly-elevated-surface: #171720;
+  --cordly-divider: #232330;
+  --cordly-text-primary: #f7f8fa;
+  --cordly-text-secondary: #a1a8b8;
+  --cordly-text-muted: #6b7280;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  background-color: var(--cordly-canvas-bg);
+  color: var(--cordly-text-primary);
+}
+
+.font-display {
+  font-family: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif;
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Custom sleek scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(130, 140, 165, 0.25);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(130, 140, 165, 0.45);
+}
+
+@keyframes cordly-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-frame-spin {
+  animation: cordly-spin 6s linear infinite;
+}
