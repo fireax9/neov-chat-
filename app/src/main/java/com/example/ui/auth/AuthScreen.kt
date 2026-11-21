@@ -185,7 +185,7 @@ private fun formatAuthErrorMessage(
             "Firebase Auth rejected APK certificate hash for ${context.packageName} (runtime SHA-1=$runtimeSha1)",
             error
         )
-        certHashMismatchMessage
+        "$certHashMismatchMessage\nSHA-1: $runtimeSha1"
     } else {
         error.localizedMessage ?: "Google sign-in failed. Please try again."
     }
