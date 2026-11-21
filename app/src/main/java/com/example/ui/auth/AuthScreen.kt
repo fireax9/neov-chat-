@@ -3,7 +3,10 @@ package com.example.ui.auth
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
+import java.security.MessageDigest
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.BorderStroke
@@ -147,10 +150,52 @@ private suspend fun signInWithCredentialResult(
     return false
 }
 
+@Suppress("DEPRECATION")
+private fun getRuntimeSigningSha1Hex(context: Context): String? = try {
+    val pm = context.packageManager
+    val sigBytes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        val info = pm.getPackageInfo(context.packageName, PackageManager.GET_SIGNING_CERTIFICATES)
+        info.signingInfo?.apkContentsSigners?.firstOrNull()?.toByteArray()
+            ?: info.signingInfo?.signingCertificateHistory?.firstOrNull()?.toByteArray()
+    } else {
+        pm.getPackageInfo(context.packageName, PackageManager.GET_SIGNATURES)
+            .signatures?.firstOrNull()?.toByteArray()
+    } ?: return null
+    MessageDigest.getInstance("SHA-1")
+        .digest(sigBytes)
+        .joinToString(":") { "%02X".format(it) }
+} catch (_: Throwable) {
+    null
+}
+
+private fun formatAuthErrorMessage(
+    context: Context,
+    error: Throwable,
+    certHashMismatchMessage: String
+): String {
+    val raw = error.message ?: error.localizedMessage ?: ""
+    val lower = raw.lowercase()
+    return if (lower.contains("certificate hash") ||
+        lower.contains("invalid_cert_hash") ||
+        lower.contains("17064")
+    ) {
+        val runtimeSha1 = getRuntimeSigningSha1Hex(context) ?: "unavailable"
+        Log.e(
+            "Auth",
+            "Firebase Auth rejected APK certificate hash for ${context.packageName} (runtime SHA-1=$runtimeSha1)",
+            error
+        )
+        certHashMismatchMessage
+    } else {
+        error.localizedMessage ?: "Google sign-in failed. Please try again."
+    }
+}
+
 suspend fun signInWithGoogleBrowser(
     context: Context,
     onAuthSuccess: () -> Unit,
-    onAuthError: (String) -> Unit
+    onAuthError: (String) -> Unit,
+    certHashMismatchMessage: String = "This app build's signing certificate (SHA-1) is not yet authorized in Firebase Console for Google Sign-In."
 ) {
     val activity = context.findActivity()
     if (activity == null) {
@@ -179,7 +224,7 @@ suspend fun signInWithGoogleBrowser(
         throw e
     } catch (e: Exception) {
         Log.e("Auth", "Browser Google Sign-In failed", e)
-        onAuthError(e.localizedMessage ?: "Google sign-in failed. Please try again.")
+        onAuthError(formatAuthErrorMessage(context, e, certHashMismatchMessage))
     }
 }
 
@@ -254,7 +299,8 @@ fun onGoogleSignInClicked(
     onAuthSuccess: () -> Unit,
     onAuthError: (String) -> Unit,
     scope: CoroutineScope,
-    onAuthCancelled: () -> Unit = {}
+    onAuthCancelled: () -> Unit = {},
+    certHashMismatchMessage: String = "This app build's signing certificate (SHA-1) is not yet authorized in Firebase Console for Google Sign-In."
 ): Job {
     return scope.launch {
         if (Firebase.auth.currentUser != null) {
@@ -272,7 +318,7 @@ fun onGoogleSignInClicked(
             ""
         }
         if (clientId.isBlank()) {
-            signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError)
+            signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError, certHashMismatchMessage)
             return@launch
         }
 
@@ -285,7 +331,7 @@ fun onGoogleSignInClicked(
             if (signInWithCredentialResult(result.credential)) {
                 onAuthSuccess()
             } else {
-                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError)
+                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError, certHashMismatchMessage)
             }
         } catch (e: CancellationException) {
             if (e is GetCredentialCancellationException) {
@@ -296,7 +342,7 @@ fun onGoogleSignInClicked(
                 Log.w("Auth", "Google Sign-In cancelled or interrupted: ${e.message}", e)
                 val msg = (e.message ?: "").lowercase()
                 if (msg.contains("developer") || msg.contains("10:") || msg.contains("28444") || msg.contains("config")) {
-                    signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError)
+                    signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError, certHashMismatchMessage)
                 } else {
                     onAuthCancelled()
                 }
@@ -338,18 +384,18 @@ fun onGoogleSignInClicked(
                 } catch (fallbackErr: Exception) {
                     Log.w("Auth", "GetGoogleIdOption fallback failed, switching to browser OAuth: ${fallbackErr.message}")
                 }
-                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError)
+                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError, certHashMismatchMessage)
             } else {
-                onAuthError(e.localizedMessage ?: "Sign in failed. Please try again.")
+                onAuthError(formatAuthErrorMessage(context, e, certHashMismatchMessage))
             }
         } catch (e: Exception) {
             Log.e("Auth", "Google Sign-In failed", e)
             if (Firebase.auth.currentUser != null) {
                 onAuthSuccess()
             } else if (isRecoverableCredentialError(e)) {
-                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError)
+                signInWithGoogleBrowser(activity, onAuthSuccess, onAuthError, certHashMismatchMessage)
             } else {
-                onAuthError(e.localizedMessage ?: "Sign in failed. Please try again.")
+                onAuthError(formatAuthErrorMessage(context, e, certHashMismatchMessage))
             }
         }
     }
@@ -654,7 +700,8 @@ fun AuthScreen(
                             onAuthCancelled = {
                                 isLoading = false
                                 errorMessage = strings.signInCancelledHint
-                            }
+                            },
+                            certHashMismatchMessage = strings.signInCertHashMismatch
                         )
                     },
                     enabled = !isLoading,
@@ -710,7 +757,8 @@ fun AuthScreen(
                                 onAuthError = { msg ->
                                     isLoading = false
                                     errorMessage = msg
-                                }
+                                },
+                                certHashMismatchMessage = strings.signInCertHashMismatch
                             )
                         }
                     },

@@ -196,7 +196,8 @@ data class AppStrings(
     val shareToServerLabel: String = "Share to Server Stickers",
     val customStickersHeader: String = "Custom",
     val signInViaBrowser: String = "Sign in via Browser (Gmail)",
-    val signInCancelledHint: String = "Google Sign-In did not complete. Tap \"Sign in via Browser (Gmail)\" below to continue."
+    val signInCancelledHint: String = "Google Sign-In did not complete. Tap \"Sign in via Browser (Gmail)\" below to continue.",
+    val signInCertHashMismatch: String = "This app build's signing certificate (SHA-1) is not yet authorized in Firebase Console for Google Sign-In. Please install an updated build or contact the app owner."
 )
 
 val EnglishStrings = AppStrings(
@@ -511,7 +512,8 @@ val ArabicStrings = AppStrings(
     shareToServerLabel = "نشر كملصق في هذا السيرفر",
     customStickersHeader = "ملصقات مخصصة",
     signInViaBrowser = "تسجيل الدخول عبر المتصفح (Gmail)",
-    signInCancelledHint = "لم يكتمل تسجيل الدخول عبر نافذة Google. اضغط على \"تسجيل الدخول عبر المتصفح (Gmail)\" بالأسفل للمتابعة."
+    signInCancelledHint = "لم يكتمل تسجيل الدخول عبر نافذة Google. اضغط على \"تسجيل الدخول عبر المتصفح (Gmail)\" بالأسفل للمتابعة.",
+    signInCertHashMismatch = "شهادة توقيع هذه النسخة من التطبيق (SHA-1) غير مضافة بعد في إعدادات Firebase لتسجيل الدخول بجوجل. يرجى تثبيت نسخة محدّثة أو التواصل مع مطوّر التطبيق."
 )
 
 val FrenchStrings = EnglishStrings.copy(
@@ -581,7 +583,10 @@ val FrenchStrings = EnglishStrings.copy(
     recordingStartedNotice = "Enregistrement de l'appel démarré.",
     recordingSavedNotice = "Enregistrement sauvegardé.",
     shopAvatarFramesTab = "Anneaux",
-    shopCardFramesTab = "Cartes Profil"
+    shopCardFramesTab = "Cartes Profil",
+    signInViaBrowser = "Connexion via navigateur (Gmail)",
+    signInCancelledHint = "La connexion Google n'a pas abouti. Appuyez sur « Connexion via navigateur (Gmail) » ci-dessous.",
+    signInCertHashMismatch = "Le certificat de signature (SHA-1) de cette version n'est pas encore autorisé dans Firebase Console pour la connexion Google. Veuillez installer une version mise à jour ou contacter le développeur."
 )
 
 val SpanishStrings = EnglishStrings.copy(
